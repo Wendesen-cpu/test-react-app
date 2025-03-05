@@ -39,7 +39,8 @@ pipeline {
                     echo "Deploying to EC2 (excluding node_modules)..."
                     sh '''
                     # Copy the entire project directory to the EC2 instance, excluding node_modules
-                    rsync -avz --exclude node_modules/ . $EC2_USER@$EC2_HOST:$APP_DIR
+                    rsync -avz --exclude node_modules/ -e "ssh -i $SSH_KEY" . $EC2_USER@$EC2_HOST:$APP_DIR
+
                     '''
                 }
             }
