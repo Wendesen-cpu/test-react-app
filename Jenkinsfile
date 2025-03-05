@@ -31,11 +31,17 @@ pipeline {
             }
         }
 
-        stage('Test') {
+           stage('.next Exists test') {
             steps {
-                // Run tests (optional, if you have tests configured)
                 script {
-                    sh 'npm run test' // You can adjust this based on your Next.js test setup
+                    // Check if the .next directory exists after the build
+                    def nextDirExists = fileExists('.next')
+
+                    if (!nextDirExists) {
+                        error ".next directory does not exist! Build may have failed."
+                    } else {
+                        echo ".next directory exists."
+                    }
                 }
             }
         }
