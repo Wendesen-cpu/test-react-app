@@ -48,7 +48,7 @@ pipeline {
                     // Example deployment (you could use different services like AWS, Netlify, etc.)
                     // For Vercel, you'd usually deploy by running `vercel` CLI with environment variables
                     // or automate this step depending on your environment.
-                    sh 'vercel --prod' // You can replace this with your actual deploy command.
+                   // sh 'vercel --prod' // You can replace this with your actual deploy command.
                 }
             }
         }
