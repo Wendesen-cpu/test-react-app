@@ -31,52 +31,61 @@ pipeline {
             }
         }
 
-           stage('.next Exists test') {
-            steps {
-                script {
-                    // Check if the .next directory exists after the build
-                    def nextDirExists = fileExists('.next')
 
-                    if (!nextDirExists) {
-                        error ".next directory does not exist! Build may have failed."
-                    } else {
-                        echo ".next directory exists."
-                    }
-                }
-            }
-        }
 
-      
-        stage('Deploy Built Files to EC2') {
-            steps {
+      stage('Deploy to EC2') {
+             steps {
                 script {
-                    // Copy only the build output to the EC2 instance
+                    echo "Deploying to EC2 (excluding node_modules)..."
                     sh '''
-                    echo "Deploying built files to EC2..."
-                    scp -i $SSH_KEY -r .next/ $EC2_USER@$EC2_HOST:$APP_DIR/.next
-                    scp -i $SSH_KEY -r package.json package-lock.json $EC2_USER@$EC2_HOST:$APP_DIR/
+                    # Copy the entire project directory to the EC2 instance, excluding node_modules
+                    rsync -avz --exclude node_modules/ . $EC2_USER@$EC2_HOST:$APP_DIR
                     '''
                 }
             }
         }
 
-        stage('Start App on EC2') {
+        stage('Install Dependencies and Build on EC2') {
             steps {
                 script {
-                    // SSH into EC2 and install production dependencies
+                    echo "Installing dependencies and building on EC2..."
                     sh '''
-                    echo "Starting app on EC2..."
                     ssh -i $SSH_KEY $EC2_USER@$EC2_HOST << EOF
+                        # Navigate to the app directory on the EC2 instance
                         cd $APP_DIR
-                        npm install --omit=dev  # Install only production dependencies
-                        pm2 stop next-app || true  # Stop any existing app
-                        pm2 start npm --name "next-app" -- run start  # Start the app using PM2
-                        pm2 save  # Save the PM2 process list
+
+                        # Install the dependencies
+                        npm install
+
+                        # Build the Next.js app
+                        npm run build
                     EOF
                     '''
                 }
             }
         }
+
+        stage('Start Application on EC2') {
+            steps {
+                script {
+                    echo "Starting the application on EC2..."
+                    sh '''
+                    ssh -i $SSH_KEY $EC2_USER@$EC2_HOST << EOF
+                        cd $APP_DIR
+
+                        # Install production dependencies
+                        npm install --omit=dev
+
+                        # Start the app with pm2
+                        pm2 start npm --name "next-app" -- run start
+                    EOF
+                    '''
+                }
+            }
+        }
+     
+
+      
     }
 
     post {
