@@ -40,18 +40,32 @@ pipeline {
             }
         }
 
-       stage('Deploy to EC2') {
+      
+        stage('Deploy Built Files to EC2') {
             steps {
                 script {
+                    // Copy only the build output to the EC2 instance
                     sh '''
-                    echo "Deploying to EC2..."
-                    scp -i $SSH_KEY -r ./* $EC2_USER@$EC2_HOST:$APP_DIR
+                    echo "Deploying built files to EC2..."
+                    scp -i $SSH_KEY -r .next/ $EC2_USER@$EC2_HOST:$APP_DIR/.next
+                    scp -i $SSH_KEY -r package.json package-lock.json $EC2_USER@$EC2_HOST:$APP_DIR/
+                    '''
+                }
+            }
+        }
+
+        stage('Start App on EC2') {
+            steps {
+                script {
+                    // SSH into EC2 and install production dependencies
+                    sh '''
+                    echo "Starting app on EC2..."
                     ssh -i $SSH_KEY $EC2_USER@$EC2_HOST << EOF
                         cd $APP_DIR
-                        npm install --omit=dev
-                        pm2 stop next-app || true
-                        pm2 start npm --name "next-app" -- run start
-                        pm2 save
+                        npm install --omit=dev  # Install only production dependencies
+                        pm2 stop next-app || true  # Stop any existing app
+                        pm2 start npm --name "next-app" -- run start  # Start the app using PM2
+                        pm2 save  # Save the PM2 process list
                     EOF
                     '''
                 }
