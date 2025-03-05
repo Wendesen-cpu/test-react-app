@@ -9,11 +9,11 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
+           stage('Setup Node.js') {
             steps {
-               script {
-                   sh 'echo Initializing...'
-                //git "https://github.com/Wendesen-cpu/test-react-app.git"
+                script {
+                    sh "nvm install 18" // Ensure Node.js is installed
+                    sh "nvm use 18"
                 }
             }
         }
