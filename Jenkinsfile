@@ -9,14 +9,6 @@ pipeline {
     }
 
     stages {
-           stage('Setup Node.js') {
-            steps {
-                script {
-                    sh "brew install node" // Ensure Node.js is installed
-                    sh "nvm use 18"
-                }
-            }
-        }
 
         stage('Install Dependencies') {
             steps {
