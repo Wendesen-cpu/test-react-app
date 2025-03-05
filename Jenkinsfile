@@ -2,8 +2,6 @@ pipeline {
     agent any
     
 
-
-
     environment {
         // Set any global environment variables here, if needed
         NODE_HOME = '/usr/local/bin/node' // Path to Node.js installation
