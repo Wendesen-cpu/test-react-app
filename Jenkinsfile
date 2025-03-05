@@ -52,6 +52,7 @@ pipeline {
                // }
                 script {
                     sh 'echo deploying....'
+                }
             }
         }
     }
