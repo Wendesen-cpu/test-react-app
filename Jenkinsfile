@@ -12,7 +12,7 @@ pipeline {
            stage('Setup Node.js') {
             steps {
                 script {
-                    sh "nvm install 18" // Ensure Node.js is installed
+                    sh "brew install node" // Ensure Node.js is installed
                     sh "nvm use 18"
                 }
             }
