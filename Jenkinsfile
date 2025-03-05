@@ -4,15 +4,14 @@ pipeline {
   nodejs 'nodejs'
 }
 
-    environment {
-        // Set any global environment variables here, if needed
-        NODE_HOME = '/usr/local/bin/node' // Path to Node.js installation
-        NPM_HOME = '/usr/local/bin/npm'   // Path to npm installation
+     environment {
+        EC2_USER = 'ubuntu'
+        EC2_HOST = '44.201.127.115'
+        SSH_KEY = '~/.ssh/demo-key.pem' // Path to your SSH key
+        APP_DIR = '/home/ubuntu/next-app' // Deployment directory
     }
 
     stages {
-
-
 
         stage('Install Dependencies') {
             steps {
@@ -41,17 +40,20 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+       stage('Deploy to EC2') {
             steps {
-                // Deploy your app (this example is for Vercel, change as needed)
-               // script {
-                    // Example deployment (you could use different services like AWS, Netlify, etc.)
-                    // For Vercel, you'd usually deploy by running `vercel` CLI with environment variables
-                    // or automate this step depending on your environment.
-                   // sh 'vercel --prod' // You can replace this with your actual deploy command.
-               // }
                 script {
-                    sh 'echo deploying....'
+                    sh '''
+                    echo "Deploying to EC2..."
+                    scp -i $SSH_KEY -r ./* $EC2_USER@$EC2_HOST:$APP_DIR
+                    ssh -i $SSH_KEY $EC2_USER@$EC2_HOST << EOF
+                        cd $APP_DIR
+                        npm install --omit=dev
+                        pm2 stop next-app || true
+                        pm2 start npm --name "next-app" -- run start
+                        pm2 save
+                    EOF
+                    '''
                 }
             }
         }
