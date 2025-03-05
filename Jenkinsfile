@@ -11,8 +11,10 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Checkout the code from the repository
-                git "https://github.com/Wendesen-cpu/test-react-app.git"
+               script {
+                   sh 'echo Initializing...'
+                //git "https://github.com/Wendesen-cpu/test-react-app.git"
+                }
             }
         }
 
