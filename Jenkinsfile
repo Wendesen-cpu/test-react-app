@@ -10,6 +10,21 @@ pipeline {
 
     stages {
 
+        stage('Setup Node.js') {
+    steps {
+        script {
+            sh '''
+                export NVM_DIR="$HOME/.nvm"
+                [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+                nvm install 18  # Replace with your Node.js version
+                nvm use 18
+                node -v
+                npm -v
+            '''
+        }
+    }
+}
+
         stage('Install Dependencies') {
             steps {
                 // Install the dependencies
