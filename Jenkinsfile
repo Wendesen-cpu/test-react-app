@@ -50,6 +50,8 @@ pipeline {
                     // or automate this step depending on your environment.
                    // sh 'vercel --prod' // You can replace this with your actual deploy command.
                // }
+                script {
+                    sh 'echo deploying....'
             }
         }
     }
