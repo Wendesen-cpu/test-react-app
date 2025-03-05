@@ -1,6 +1,8 @@
 pipeline {
     agent any
-    
+    tools {
+  nodejs 'nodejs'
+}
 
     environment {
         // Set any global environment variables here, if needed
